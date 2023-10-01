@@ -21,6 +21,7 @@ def recommend_albums(current_album):
     albums = recommender.get_albums()
     if(not (albums.loc[albums['title'] == current_album].empty)):
         albums = recommender.get_album_recommendations(current_album)
+        print(albums)
     else:
         print("the album you chose is not in the database!")
         return
@@ -30,7 +31,9 @@ def recommend_albums(current_album):
 #     print("todo")
 
 def show_recommended_albums(albums):
-    print("todo")
+    print("That is an awesome album! Here are a few like it: ")
+    for album in albums:
+        print(album['title'])
 
 
 get_input()

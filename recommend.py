@@ -15,27 +15,31 @@ class Recommender:
         sim_scores = list(enumerate(self.get_review_similarities()[index]))
         #Get 5 most similar reviews 
         sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-        sim_scores = sim_scores[1:6]
+        sim_scores = sim_scores[1:26]
         rec_indices = [k[0] for k in sim_scores]
-        album_ids = self.reviews['album'].iloc[rec_indices]
-        print(album_ids)
+        all_albums = self.reviews['album'].iloc[rec_indices]
+        unique_ids = []
+        for a in all_albums.items():
+            if(a[1] not in unique_ids):
+                unique_ids.append(a[1])
+        album_ids = unique_ids[0:5]
         albums = []
-        for id in album_ids:
-            albums.append(self.albums.loc[self.albums['id'] == id])
-
+        for album_id in album_ids:
+            albums.append(self.albums.loc[self.albums['id'] == album_id])
         return albums
 
     def get_album_recommendations(self, album_name):
-        album_id = self.albums.loc[self.albums['title'] == album_name]['id']
+        album_id = int(self.albums.loc[self.albums['title'] == album_name]['id'].to_numpy()[0])
         if(self.reviews.loc[self.reviews['album'] == album_id].empty):
             print("there are no reviews of this album to base a recommendation off of")
+            return
         else:
             reviews = self.reviews.loc[self.reviews['album'] == album_id]
             max_score = 0 
-            for review in reviews:
+            for index, review in reviews.iterrows():
                 if(float(review['score']) > max_score):
                     review_to_use = review
-        self.get_album_recommendations_from_review(review_to_use['content'], indices = pd.Series(self.reviews.index, index=self.reviews['content']).drop_duplicates())
+            return self.get_album_recommendations_from_review(review_to_use['content'], indices = pd.Series(self.reviews.index, index=self.reviews['content']).drop_duplicates())
             
     #There are multiple reviews for some album, so we'll use the average rating 
     def get_score(self, album_id):
